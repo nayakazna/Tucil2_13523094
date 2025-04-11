@@ -14,7 +14,6 @@ using namespace imgio;
 
 int main() {
     Gambar gambar;
-    string filename;
 
     if (!readGambar(&gambar)) goto ret;
     while (!writeGambar(gambar)) {}

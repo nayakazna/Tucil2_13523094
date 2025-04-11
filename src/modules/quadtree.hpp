@@ -2,8 +2,8 @@
 
 #include <memory>
 #include <cstdint>
+#include <stdexcept>
 
-using namespace std;
 
 namespace quadtree {
     class QuadtreeNode {
@@ -21,7 +21,7 @@ namespace quadtree {
                 : x(other.x), y(other.y), lebar(other.lebar), tinggi(other.tinggi), isDaun(other.isDaun), warna(other.warna) {
                 for (int i = 0; i < 4; ++i) {
                     if (other.anak[i]) {
-                        anak[i] = make_unique<QuadtreeNode>(*other.anak[i]);
+                        anak[i] = std::make_unique<QuadtreeNode>(*other.anak[i]);
                     } else {
                         anak[i] = nullptr;
                     }
@@ -42,7 +42,7 @@ namespace quadtree {
                     warna = other.warna;
                     for (int i = 0; i < 4; ++i) {
                         if (other.anak[i]) {
-                            anak[i] = make_unique<QuadtreeNode>(*other.anak[i]);
+                            anak[i] = std::make_unique<QuadtreeNode>(*other.anak[i]);
                         } else {
                             anak[i] = nullptr;
                         }
@@ -67,15 +67,39 @@ namespace quadtree {
             void setTinggi(int tinggi) { this->tinggi = tinggi; }
             void setIsDaun(bool isDaun) { this->isDaun = isDaun; }
             void setWarna(uint32_t warna) { this->warna = warna; }
-            void setAnak(int i, QuadtreeNode* node) { this->anak[i] = unique_ptr<QuadtreeNode>(node); }
+            void setAnak(int i, QuadtreeNode* node) { this->anak[i] = std::unique_ptr<QuadtreeNode>(node); }
 
+            // method untuk menambahkan anak
+            void addAnak(int i, int x_, int y_, int lebar_, int tinggi_, bool isDaun_, uint32_t warna_) {
+                if (i < 0 || i >= 4) {
+                    throw std::out_of_range("Index anak harus antara 0 dan 3");
+                }
+                anak[i] = std::make_unique<QuadtreeNode>(x_, y_, lebar_, tinggi_, isDaun_, warna_);
+            }
 
+            // method untuk menghapus anak
+            void removeAnak(int i) {
+                if (i < 0 || i >= 4) {
+                    throw std::out_of_range("Index anak harus antara 0 dan 3");
+                }
+                anak[i].reset();
+            }
+
+            // method untuk mengecek apakah node memiliki anak
+            bool hasChildren() const {
+                for (int i = 0; i < 4; ++i) {
+                    if (anak[i]) {
+                        return true;
+                    }
+                }
+                return false;
+            }
 
         private:
             int x, y, lebar, tinggi;
             bool isDaun;
             uint32_t warna;
-            unique_ptr<QuadtreeNode> anak[4];
+            std::unique_ptr<QuadtreeNode> anak[4];
     };
 
 } // namespace quadtree
