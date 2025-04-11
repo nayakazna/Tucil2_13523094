@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <iostream>
 #include <stdexcept>
+#include <chrono>
+#include <filesystem>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "external/stb_image.h"
@@ -12,7 +14,6 @@
 #include "external/stb_image_write.h"    
 
 namespace imgio {
-    using namespace std;
 
     /// Struktur untuk menyimpan informasi gambar
     struct Gambar {
@@ -33,26 +34,28 @@ namespace imgio {
 
     /// Membaca gambar dari file ke dalam struktur Gambar
     /// return false jika gagal membaca gambar, true jika berhasil
-    bool readGambar(Gambar* gambar) {
+    bool readGambar(Gambar* gambar, std::string* path) {
         try {
-            string filename;
+            std::string filename;
 
-            cout << "Masukkan \033[1mpath absolut\033[0m menuju file gambar yang akan dimuat: ";
+            std::cout << "Masukkan \033[1mpath absolut\033[0m menuju file gambar yang akan dimuat: ";
             std::getline(std::cin >> std::ws, filename);
             
             if (!isAbsolutePath(filename)) {
-                throw runtime_error("\033[31mPath yang diberikan bukan path absolut!\033[0m");
+                throw std::runtime_error("\033[31mPath yang diberikan bukan path absolut!\033[0m");
             }
 
-            cout << "Membaca gambar dari: " << filename << endl;
+            std::cout << "Membaca gambar dari: " << filename << std::endl;
             uint8_t* data = stbi_load(filename.c_str(), &gambar->width, &gambar->height, &gambar->channels, 3);
 
             if (!data) {
                 gambar->height = gambar->width = gambar->channels = 0;
-                throw runtime_error("\033[31mGagal membaca gambar!\033[0m Pastikan file gambar ada dan formatnya didukung.");
+                throw std::runtime_error("\033[31mGagal membaca gambar!\033[0m Pastikan file gambar ada dan formatnya didukung.");
             }
 
-            cout << "\033[32mGambar berhasil dibaca!\033[0m \n";
+            path->assign(filename);
+
+            std::cout << "\033[32mGambar berhasil dibaca!\033[0m \n";
             
             gambar->channels = 3;
             gambar->data.resize(gambar->width * gambar->height * gambar->channels);
@@ -60,35 +63,47 @@ namespace imgio {
             stbi_image_free(data);
             return true;
         }
-        catch(const exception& e) {
-            cerr << e.what() << '\n';
+        catch(const std::exception& e) {
+            std::cerr << e.what() << '\n';
             return false;
         }
     }
 
     // Menyimpan gambar ke file
     // return true jika berhasil menyimpan gambar, false jika gagal
-    bool writeGambar(const Gambar& image) {
+    bool writeGambar(const Gambar& image, std::chrono::milliseconds waktuEksekusi, std::string oriPath, int kedalaman, int jumlahNode) {
         try {
-            string filename;
-            cout << "Masukkan \033[1mpath absolut\033[0m (termasuk nama file gambar) untuk nyimpan hasil kompresi: ";
+            std::string filename;
+            std::cout << "Masukkan \033[1mpath absolut\033[0m (termasuk nama file gambar) untuk nyimpan hasil kompresi: ";
             std::getline(std::cin >> std::ws, filename);
             
             if (!isAbsolutePath(filename)) {
-                throw runtime_error("\033[31mPath yang diberikan bukan path absolut!\033[0m");
+                throw std::runtime_error("\033[31mPath yang diberikan bukan path absolut!\033[0m");
             }
             
-            cout << "Menyimpan gambar ke: " << filename << endl;
+            std::cout << "Menyimpan gambar ke: " << filename << std::endl;
             
             if (!stbi_write_png(filename.c_str(), image.width, image.height, image.channels, image.data.data(), image.width * image.channels)) {
-                throw runtime_error("\033[31mGagal menyimpan gambar!\033[0m Pastikan direktori yang dituju beneran ada.");
+                throw std::runtime_error("\033[31mGagal menyimpan gambar!\033[0m Pastikan direktori yang dituju beneran ada.");
             }
             
-            cout << "\033[32mGambar berhasil disimpan!\033[0m \n";
+            std::filesystem::path originalPath(oriPath);
+            std::filesystem::path newPath(filename);
+            std::uintmax_t originalSize = std::filesystem::file_size(originalPath);
+            std::uintmax_t newSize = std::filesystem::file_size(newPath);
+
+            std::cout<< "Waktu eksekusi: " << waktuEksekusi.count() << " ms\n";
+            std::cout<< "Ukuran gambar asli: " << originalSize << " bytes\n";
+            std::cout<< "Ukuran gambar terkompresi: " << newSize << " bytes\n";
+            std::cout<< "Persentase kompresi: " << (1.0 - static_cast<float>(newSize) / originalSize) * 100 << "%\n";
+            std::cout<< "Kedalaman quadtree: " << kedalaman << "\n";
+            std::cout<< "Jumlah node quadtree: " << jumlahNode << "\n";
+            
+            std::cout << "\033[32mGambar berhasil disimpan!\033[0m \n";
             return true;
         }
-        catch(const exception& e) {
-            cerr << e.what() << '\n';
+        catch(const std::exception& e) {
+            std::cerr << e.what() << '\n';
             return false;
         }
     }
