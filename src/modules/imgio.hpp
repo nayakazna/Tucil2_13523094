@@ -14,7 +14,7 @@
 namespace imgio {
     using namespace std;
 
-    /// @brief Struktur untuk menyimpan informasi gambar
+    /// Struktur untuk menyimpan informasi gambar
     struct Gambar {
         int width;
         int height;
@@ -22,10 +22,8 @@ namespace imgio {
         std::vector<uint8_t> data;
     };
 
-    // kak pls ini bukan comment AI-generated tp klo aku ngetik /// tiba-tiba muncul template ginian
-    /// @brief Mengecek apakah path yang diberikan adalah path absolut
-    /// @param path: string yang berisi path yang akan dicek
-    /// @return true jika path adalah path absolut, false jika tidak
+    // Mengecek apakah path yang diberikan adalah path absolut
+    // return true jika path adalah path absolut, false jika tidak
     bool isAbsolutePath(const std::string& path) {
     return (!path.empty() && path[0] == '/') || // untuk Unix
            (path.size() > 2 && std::isalpha(path[0]) && // untuk Windows
@@ -33,9 +31,8 @@ namespace imgio {
 }
 
 
-    /// @brief Membaca gambar dari file ke dalam struktur Gambar
-    /// @param gambar: pointer ke struktur Gambar yang akan diisi
-    /// @return false jika gagal membaca gambar, true jika berhasil
+    /// Membaca gambar dari file ke dalam struktur Gambar
+    /// return false jika gagal membaca gambar, true jika berhasil
     bool readGambar(Gambar* gambar) {
         try {
             string filename;
@@ -69,9 +66,8 @@ namespace imgio {
         }
     }
 
-    /// @brief Menyimpan gambar ke file
-    /// @param image: struktur Gambar yang akan disimpan
-    /// @return true jika berhasil menyimpan gambar, false jika gagal
+    // Menyimpan gambar ke file
+    // return true jika berhasil menyimpan gambar, false jika gagal
     bool writeGambar(const Gambar& image) {
         try {
             string filename;
