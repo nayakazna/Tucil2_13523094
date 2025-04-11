@@ -17,7 +17,7 @@ int main() {
     string filename;
 
     if (!readGambar(&gambar)) goto ret;
-    if (!writeGambar(gambar)) goto ret;
+    while (!writeGambar(gambar)) {}
     
     ret:
     return 0;
