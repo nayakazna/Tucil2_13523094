@@ -116,6 +116,7 @@ namespace quadtree {
                 }
                 return maxDepth + 1;
             }
+            
 
             // method untuk menghitung node quadtree
             int hitungNode() const {
