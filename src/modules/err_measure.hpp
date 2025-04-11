@@ -29,34 +29,6 @@ namespace err_measure {
         return rerata;
     }
 
-    float calculateGalat(const std::vector<uint8_t>* warnaBlok, int x, int y, int width, int height, int metode) {
-        float galat;
-        
-        switch (metode) {
-        case 1: // variansi
-            /* code */
-            break;
-        
-        case 2: // MAD
-            /* code */
-            break;
-
-        case 3: // MPD
-            /* code */
-            break;
-
-        case 4: // entropi
-            /* code */
-            break;
-
-        default:
-            std::cerr << "\033[31mMetode galat tidak dikenali!\033[0m" << std::endl;
-            return -1.0f;
-            break;
-        }
-        return galat;
-    }
-
     float variansi(const std::vector<uint8_t>* warnaBlok, int x, int y, int width, int height) {
         Warna rerata = calculateRerataWarna(warnaBlok, x, y, width, height);
         float galat = 0.0f;
@@ -167,6 +139,34 @@ namespace err_measure {
         // Hitung galat sebagai rata-rata entropi dari ketiga channel
         galat = (h_r + h_g + h_b) / 3.0f;
         
+        return galat;
+    }
+
+    float calculateGalat(const std::vector<uint8_t>* warnaBlok, int x, int y, int width, int height, int metode) {
+        float galat;
+        
+        switch (metode) {
+        case 1: // variansi
+            galat = variansi(warnaBlok, x, y, width, height);
+            break;
+        
+        case 2: // MAD
+            galat = MAD(warnaBlok, x, y, width, height);
+            break;
+
+        case 3: // MPD
+            galat = MPD(warnaBlok, x, y, width, height);
+            break;
+
+        case 4: // entropi
+            galat = entropi(warnaBlok, x, y, width, height);
+            break;
+
+        default:
+            std::cerr << "\033[31mMetode galat tidak dikenali!\033[0m" << std::endl;
+            return -1.0f;
+            break;
+        }
         return galat;
     }
 

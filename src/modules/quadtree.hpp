@@ -8,9 +8,17 @@
 namespace quadtree {
     class QuadtreeNode {
         public:
+            // ctor default
+            QuadtreeNode(int x_, int y_, int lebar_, int tinggi_) 
+                : x(x_), y(y_), lebar(lebar_), tinggi(tinggi_), isDaun(true) {
+                for (int i = 0; i < 4; ++i) {
+                    anak[i] = nullptr;
+                }
+            }
+
             // ctor
-            QuadtreeNode(int x_, int y_, int lebar_, int tinggi_, bool isDaun_, uint32_t warna_) 
-                : x(x_), y(y_), lebar(lebar_), tinggi(tinggi_), isDaun(isDaun_), warna(warna_) {
+            QuadtreeNode(int x_, int y_, int lebar_, int tinggi_, bool isDaun_) 
+                : x(x_), y(y_), lebar(lebar_), tinggi(tinggi_), isDaun(isDaun_) {
                 for (int i = 0; i < 4; ++i) {
                     anak[i] = nullptr;
                 }
@@ -18,7 +26,7 @@ namespace quadtree {
 
             // cctor
             QuadtreeNode(const QuadtreeNode& other) 
-                : x(other.x), y(other.y), lebar(other.lebar), tinggi(other.tinggi), isDaun(other.isDaun), warna(other.warna) {
+                : x(other.x), y(other.y), lebar(other.lebar), tinggi(other.tinggi), isDaun(other.isDaun) {
                 for (int i = 0; i < 4; ++i) {
                     if (other.anak[i]) {
                         anak[i] = std::make_unique<QuadtreeNode>(*other.anak[i]);
@@ -39,7 +47,6 @@ namespace quadtree {
                     lebar = other.lebar;
                     tinggi = other.tinggi;
                     isDaun = other.isDaun;
-                    warna = other.warna;
                     for (int i = 0; i < 4; ++i) {
                         if (other.anak[i]) {
                             anak[i] = std::make_unique<QuadtreeNode>(*other.anak[i]);
@@ -57,7 +64,6 @@ namespace quadtree {
             int getLebar() const { return lebar; }
             int getTinggi() const { return tinggi; }
             bool getIsDaun() const { return isDaun; }
-            uint32_t getWarna() const { return warna; }
             QuadtreeNode* getAnak(int i) const { return anak[i].get(); }
 
             // setters
@@ -66,15 +72,14 @@ namespace quadtree {
             void setLebar(int lebar) { this->lebar = lebar; }
             void setTinggi(int tinggi) { this->tinggi = tinggi; }
             void setIsDaun(bool isDaun) { this->isDaun = isDaun; }
-            void setWarna(uint32_t warna) { this->warna = warna; }
             void setAnak(int i, QuadtreeNode* node) { this->anak[i] = std::unique_ptr<QuadtreeNode>(node); }
 
             // method untuk menambahkan anak
-            void addAnak(int i, int x_, int y_, int lebar_, int tinggi_, bool isDaun_, uint32_t warna_) {
+            void addAnak(int i, int x_, int y_, int lebar_, int tinggi_, bool isDaun_) {
                 if (i < 0 || i >= 4) {
                     throw std::out_of_range("Index anak harus antara 0 dan 3");
                 }
-                anak[i] = std::make_unique<QuadtreeNode>(x_, y_, lebar_, tinggi_, isDaun_, warna_);
+                anak[i] = std::make_unique<QuadtreeNode>(x_, y_, lebar_, tinggi_, isDaun_);
             }
 
             // method untuk menghapus anak
@@ -95,10 +100,37 @@ namespace quadtree {
                 return false;
             }
 
+            // method untuk menghitung kedalaman quadtree
+            int hitungKedalaman() const {
+                if (isDaun) {
+                    return 0;
+                }
+                int maxDepth = 0;
+                for (int i = 0; i < 4; ++i) {
+                    if (anak[i]) {
+                        int depth = anak[i]->hitungKedalaman();
+                        if (depth > maxDepth) {
+                            maxDepth = depth;
+                        }
+                    }
+                }
+                return maxDepth + 1;
+            }
+
+            // method untuk menghitung node quadtree
+            int hitungNode() const {
+                int count = 1; // hitung node ini
+                for (int i = 0; i < 4; ++i) {
+                    if (anak[i]) {
+                        count += anak[i]->hitungNode();
+                    }
+                }
+                return count;
+            }
+
         private:
             int x, y, lebar, tinggi;
             bool isDaun;
-            uint32_t warna;
             std::unique_ptr<QuadtreeNode> anak[4];
     };
 

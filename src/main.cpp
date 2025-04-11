@@ -1,23 +1,10 @@
 #include "modules/imgio.hpp"
-// #include "modules/quadtree.hpp"
-
-#include <iostream>
-#include <stdexcept>
-#include <memory>
-#include <algorithm>
-#include <cstdlib>
-
-
-using namespace std;
-using namespace imgio;
-// using namespace quadtree;
+#include "modules/algo.hpp"
 
 int main() {
-    Gambar gambar;
-
-    if (!readGambar(&gambar)) goto ret;
-    while (!writeGambar(gambar)) {}
-    
-    ret:
-    return 0;
+    imgio::Gambar gambar;
+    if (!imgio::readGambar(&gambar)) goto ret;
+    algo::mainAlgo(gambar);
+    while (!imgio::writeGambar(gambar)) {}
+    ret: return 0;
 }
