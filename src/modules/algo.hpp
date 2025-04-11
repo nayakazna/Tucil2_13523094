@@ -35,9 +35,9 @@ namespace algo {
         }
     }
 
-    quadtree::QuadtreeNode* kompresiQuadtree(imgio::Gambar& gambar, int x, int y, int width, int height) {
+    quadtree::QuadtreeNode* kompresiQuadtree(imgio::Gambar& gambar, int x, int y, int width, int height, int imageWidth) {
         // Menghitung galat untuk blok saat ini
-        float galat = err_measure::calculateGalat(&gambar.data, x, y, width, height, metode);
+        float galat = err_measure::calculateGalat(&gambar.data, x, y, width, height, imageWidth, metode);
 
         // Jika galat lebih besar dari ambang batas, bagi blok menjadi 4 bagian
         if (galat > ambang && width > minimumBlok && height > minimumBlok) {
@@ -45,15 +45,15 @@ namespace algo {
             int halfHeight = height / 2;
 
             quadtree::QuadtreeNode* node = new quadtree::QuadtreeNode(x, y, width, height);
-            node->setAnak(0, kompresiQuadtree(gambar, x, y, halfWidth, halfHeight));
-            node->setAnak(1, kompresiQuadtree(gambar, x + halfWidth, y, halfWidth, halfHeight));
-            node->setAnak(2, kompresiQuadtree(gambar, x, y + halfHeight, halfWidth, halfHeight));
-            node->setAnak(3, kompresiQuadtree(gambar, x + halfWidth, y + halfHeight, halfWidth, halfHeight));
+            node->setAnak(0, kompresiQuadtree(gambar, x, y, halfWidth, halfHeight, imageWidth));
+            node->setAnak(1, kompresiQuadtree(gambar, x + halfWidth, y, width-halfWidth, halfHeight, imageWidth));
+            node->setAnak(2, kompresiQuadtree(gambar, x, y + halfHeight, halfWidth, height-halfHeight, imageWidth));
+            node->setAnak(3, kompresiQuadtree(gambar, x + halfWidth, y + halfHeight, width-halfWidth, height-halfHeight, imageWidth));
             return node;
         } else {
             // Jika galat lebih kecil atau sama dengan ambang batas,
             // buat node daun dengan warna rata-rata blok
-            err_measure::Warna warna = err_measure::calculateRerataWarna(&gambar.data, x, y, width, height);
+            err_measure::Warna warna = err_measure::calculateRerataWarna(&gambar.data, x, y, width, height, imageWidth);
             warnaiBlok(gambar, x, y, width, height, warna.r, warna.g, warna.b);
             // Buat node daun
             return new quadtree::QuadtreeNode(x, y, width, height, true);
@@ -61,7 +61,7 @@ namespace algo {
 
     }
 
-    hasilData mainAlgo(imgio::Gambar& gambar) {
+    hasilData mainAlgo(imgio::Gambar& gambar, int imageWidth) {
         // Meminta input dari pengguna untuk metode galat
         galat:
         std::cout << "Pilih metode galat:\n";
@@ -97,7 +97,7 @@ namespace algo {
         hasilData hasil;
 
         auto start = std::chrono::high_resolution_clock::now();
-        quadtree::QuadtreeNode* root = kompresiQuadtree(gambar, 0, 0, gambar.width, gambar.height);
+        quadtree::QuadtreeNode* root = kompresiQuadtree(gambar, 0, 0, gambar.width, gambar.height, imageWidth);
         auto end = std::chrono::high_resolution_clock::now();
 
         hasil.waktuEksekusi = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);

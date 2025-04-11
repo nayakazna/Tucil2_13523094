@@ -6,17 +6,17 @@
 
 namespace err_measure {
     struct Warna {
-        uint8_t r;
-        uint8_t g;
-        uint8_t b;
+        float r;
+        float g;
+        float b;
     };
 
-    Warna calculateRerataWarna(const std::vector<uint8_t>* warnaBlok, int x, int y, int width, int height) {
+    Warna calculateRerataWarna(const std::vector<uint8_t>* warnaBlok, int x, int y, int width, int height, int imageWidth) {
         Warna rerata = {0, 0, 0};
         
         for (int i = 0; i < height; ++i) {
             for (int j = 0; j < width; ++j) {
-                int index = ((y + i) * width + (x + j)) * 3;
+                int index = ((y + i) * imageWidth + (x + j)) * 3;
                 rerata.r += warnaBlok->at(index);
                 rerata.g += warnaBlok->at(index + 1);
                 rerata.b += warnaBlok->at(index + 2);
@@ -29,8 +29,9 @@ namespace err_measure {
         return rerata;
     }
 
-    float variansi(const std::vector<uint8_t>* warnaBlok, int x, int y, int width, int height) {
-        Warna rerata = calculateRerataWarna(warnaBlok, x, y, width, height);
+    float variansi(const std::vector<uint8_t>* warnaBlok, int x, int y, int width, int height, int imageWidth) {
+        Warna rerata = calculateRerataWarna(warnaBlok, x, y, width, height, imageWidth);
+
         float galat = 0.0f;
         float var_r = 0.0f;
         float var_g = 0.0f;
@@ -54,8 +55,9 @@ namespace err_measure {
         return galat;
     }
 
-    float MAD(const std::vector<uint8_t>* warnaBlok, int x, int y, int width, int height) {
-        Warna rerata = calculateRerataWarna(warnaBlok, x, y, width, height);
+    float MAD(const std::vector<uint8_t>* warnaBlok, int x, int y, int width, int height, int imageWidth) {
+        Warna rerata = calculateRerataWarna(warnaBlok, x, y, width, height, imageWidth);
+
         float galat = 0.0f;
         float mad_r = 0.0f;
         float mad_g = 0.0f;
@@ -80,8 +82,9 @@ namespace err_measure {
         return galat;
     }
 
-    float MPD(const std::vector<uint8_t>* warnaBlok, int x, int y, int width, int height) {
-        Warna rerata = calculateRerataWarna(warnaBlok, x, y, width, height);
+    float MPD(const std::vector<uint8_t>* warnaBlok, int x, int y, int width, int height, int imageWidth) {
+        Warna rerata = calculateRerataWarna(warnaBlok, x, y, width, height, imageWidth);
+
         float galat = 0.0f;
         float mpd_r = 0.0f;
         float mpd_g = 0.0f;
@@ -101,7 +104,7 @@ namespace err_measure {
         return galat;
     }
 
-    float entropi(const std::vector<uint8_t>* warnaBlok, int x, int y, int width, int height) {
+    float entropi(const std::vector<uint8_t>* warnaBlok, int x, int y, int width, int height, int imageWidth) {
         float galat = 0.0f;
         float h_r = 0.0f;
         float h_g = 0.0f;
@@ -142,24 +145,24 @@ namespace err_measure {
         return galat;
     }
 
-    float calculateGalat(const std::vector<uint8_t>* warnaBlok, int x, int y, int width, int height, int metode) {
+    float calculateGalat(const std::vector<uint8_t>* warnaBlok, int x, int y, int width, int height, int imageWidth, int metode) {
         float galat;
         
         switch (metode) {
         case 1: // variansi
-            galat = variansi(warnaBlok, x, y, width, height);
+            galat = variansi(warnaBlok, x, y, width, height, imageWidth);
             break;
         
         case 2: // MAD
-            galat = MAD(warnaBlok, x, y, width, height);
+            galat = MAD(warnaBlok, x, y, width, height, imageWidth);
             break;
 
         case 3: // MPD
-            galat = MPD(warnaBlok, x, y, width, height);
+            galat = MPD(warnaBlok, x, y, width, height, imageWidth);
             break;
 
         case 4: // entropi
-            galat = entropi(warnaBlok, x, y, width, height);
+            galat = entropi(warnaBlok, x, y, width, height, imageWidth);
             break;
 
         default:
